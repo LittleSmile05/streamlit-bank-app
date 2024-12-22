@@ -292,12 +292,7 @@ else:  # Purchase Prediction Page
                         delta="Positive" if prediction == 1 else "Negative"
                     )
                 
-                with col2:
-                    st.metric(
-                        "Confidence",
-                        f"{confidence:.2%}",
-                        delta="High" if confidence > 0.7 else "Low"
-                    )
+               
 
                 # Display model information
                 st.write("### Model Information")
