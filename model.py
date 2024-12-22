@@ -6,6 +6,7 @@ import joblib
 import numpy as np
 from sklearn.preprocessing import StandardScaler
 from sklearn.impute import SimpleImputer
+from pathlib import Path
 
 # Page configuration
 st.set_page_config(
@@ -32,9 +33,13 @@ st.markdown("""
 
 # Cache functions
 @st.cache_data
-def load_data(file_path):
+def load_data():
     try:
-        df = pd.read_csv(file_path, encoding='utf-8')
+        data_path = Path("data/final_dataset.csv")
+        if not data_path.exists():
+            st.error("Data file not found. Please ensure 'final_dataset.csv' is in the 'data' directory.")
+            st.stop()
+        df = pd.read_csv(data_path, encoding='utf-8')
         return df
     except Exception as e:
         st.error(f"An error occurred while loading the data: {e}")
@@ -43,15 +48,19 @@ def load_data(file_path):
 @st.cache_resource
 def load_model():
     try:
-        inference_pipeline = joblib.load(r'C:\Users\gunel\Downloads\satis_streamlitapp\p\bank_streamlit\inference_pipeline.pkl')
-        model_info = joblib.load(r'C:\Users\gunel\Downloads\satis_streamlitapp\p\bank_streamlit\model_info.pkl')
+        model_path = Path("models")
+        inference_pipeline = joblib.load(model_path / "inference_pipeline.pkl")
+        model_info = joblib.load(model_path / "model_info.pkl")
         return inference_pipeline, model_info
+    except FileNotFoundError:
+        st.error("Model files not found. Please ensure model files are in the 'models' directory.")
+        return None, None
     except Exception as e:
         st.error(f"Error loading model: {e}")
         return None, None
 
 # Load data
-df = load_data(r"C:\Users\gunel\Downloads\satis_streamlitapp\p\bank_streamlit\final_dataset.csv")
+df = load_data()
 
 # Main title with emoji and styling
 st.title("🏦 Bank Customer Analytics & Prediction Hub")
@@ -283,7 +292,12 @@ else:  # Purchase Prediction Page
                         delta="Positive" if prediction == 1 else "Negative"
                     )
                 
-                
+                with col2:
+                    st.metric(
+                        "Confidence",
+                        f"{confidence:.2%}",
+                        delta="High" if confidence > 0.7 else "Low"
+                    )
 
                 # Display model information
                 st.write("### Model Information")
@@ -301,6 +315,7 @@ else:  # Purchase Prediction Page
             st.write("1. The model in the pipeline doesn't support probability predictions")
             st.write("2. The pipeline transformation steps might need to be updated")
             st.write("3. The model files might not be properly loaded")
+
 # Footer
 st.markdown("---")
 st.markdown("*Dashboard created with Streamlit and Python*")
