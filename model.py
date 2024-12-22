@@ -35,7 +35,7 @@ st.markdown("""
 @st.cache_data
 def load_data():
     try:
-        data_path = Path("data/final_dataset.csv")
+        data_path = Path("final_dataset.csv")
         if not data_path.exists():
             st.error("Data file not found. Please ensure 'final_dataset.csv' is in the 'data' directory.")
             st.stop()
@@ -49,8 +49,8 @@ def load_data():
 def load_model():
     try:
         model_path = Path("models")
-        inference_pipeline = joblib.load(model_path / "inference_pipeline.pkl")
-        model_info = joblib.load(model_path / "model_info.pkl")
+        inference_pipeline = joblib.load("inference_pipeline.pkl")
+        model_info = joblib.load("model_info.pkl")
         return inference_pipeline, model_info
     except FileNotFoundError:
         st.error("Model files not found. Please ensure model files are in the 'models' directory.")
